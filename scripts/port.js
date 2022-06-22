@@ -10,6 +10,12 @@ export { init, select, open, getInfo };
 
 async function init()
 {
+    if (!("serial" in navigator))
+    {
+        console.log("Error");
+        alert("Browser has no webserial support");
+    }
+
     let available_ports = await navigator.serial.getPorts();
     if (available_ports && available_ports.length == 1)
     {
