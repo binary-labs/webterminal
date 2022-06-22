@@ -1,5 +1,5 @@
-import '../node_modules/xterm/lib/xterm.js';
-import '../node_modules/xterm-addon-fit/lib/xterm-addon-fit.js';
+import '../lib/xterm/lib/xterm.js';
+import '../lib/xterm-addon-fit/lib/xterm-addon-fit.js';
 
 export {create, write, log};
 
