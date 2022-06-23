@@ -34,13 +34,19 @@ function create(term_element)
         fontFamily: 'monospace',
         theme: baseTheme,
         cursorBlink: true,
-        rows: 50
+        rows: 30
+        
     });
     fitAddon = new FitAddon.FitAddon();
     term.loadAddon(fitAddon);
 
     term.open(term_element);
     fitAddon.fit();
+
+    window.onresize = function () {
+        fitAddon.fit();
+        console.log(JSON.stringify({ cols: term.cols, rows: term.rows }));
+      }
 
     log("Terminal loaded");
 }
