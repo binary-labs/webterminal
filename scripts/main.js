@@ -24,7 +24,7 @@ async function start_default()
   update_port_display();
   try
   {
-    start();
+    await start();
   }
   catch (e)
   {
@@ -36,7 +36,7 @@ async function change_port()
 {
   await port.select();
   update_port_display();
-  start();
+  await start();
 }
 
 function update_port_display()
@@ -48,7 +48,7 @@ function update_port_display()
     text = "Device " + info.usbVendorId.toString(16).padStart(4, '0') + ":" + info.usbProductId.toString(16).padStart(4, '0');
   } catch(e)
   {
-   console.log(e);
+   console.log("Cannot print device id");
   }
   portLabel.innerText = text;  
 }
@@ -73,15 +73,19 @@ function update_connection_status(val)
 let ac;
 let done;
 
-async function start() {
+async function start()
+{
 
   let {read_stream, write_stream} = await port.open();
 
   let reader = read_stream.getReader();
+  let writer = write_stream.getWriter();
 
   ac = new AbortController();
   done = new Promise(async (resolve, reject) =>
   {
+    terminal.setReadCallback(data => {writer.write(data)});
+
     while (true)
     {
         try{

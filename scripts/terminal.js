@@ -1,7 +1,7 @@
 import '../lib/xterm/lib/xterm.js';
 import '../lib/xterm-addon-fit/lib/xterm-addon-fit.js';
 
-export {create, write, log};
+export {create, write, log, setReadCallback};
 
 let term;
 let fitAddon;
@@ -55,6 +55,11 @@ function write(value)
 {
     let corrected_value = value.replace(/(?:\\[n]|[\n])/g,"\n\r")
     term.write(corrected_value)
+}
+
+function setReadCallback(cb)
+{
+    term.onData(cb);
 }
 
 function log(value)
