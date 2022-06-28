@@ -34,8 +34,7 @@ async function change_port() {
     start();
 }
 
-function update_port_display()
-{
+function update_port_display() {
     let text = "No device selected";
     try {
         let info = port.getInfo();
@@ -46,8 +45,7 @@ function update_port_display()
     portLabel.innerText = text;
 }
 
-function update_connection_status(val)
-{
+function update_connection_status(val) {
     if (val) {
         terminal.log("Device Connected");
         connectLabel.innerText = "Connected";
@@ -61,12 +59,10 @@ function update_connection_status(val)
 
 /////////////////////
 
-function writeDispatch(data)
-{
+function writeDispatch(data) {
     console.log(data);
 
-    if (writeCallback)
-    {
+    if (writeCallback) {
         writeCallback(data);
     }
 }
@@ -80,34 +76,24 @@ let reader;
 let keepRunning;
 
 
-function start()
-{
+function start() {
     keepRunning = true;
     worker = run();
 }
 
-async function stop()
-{
+async function stop() {
     keepRunning = false;
     if (reader) reader.cancel();
     await worker;
 }
 
 
-async function run()
-{
-    try
-    {
-        const p = await port.open();
+async function run() {
+    const p = await port.open().catch(function(error) {
+        console.log("Cannot open:", error)
+    });
 
-        navigator.serial.addEventListener("connect", (event) => {
-            console.log("Connected CB");
-        });
-        
-        navigator.serial.addEventListener("disconnect", (event) => {
-            console.log("Disconnected CB");
-        });
-
+    try {
         console.log("port opened");
 
         const encoder = new TextEncoderStream();
@@ -116,10 +102,9 @@ async function run()
         const decoder = new TextDecoderStream();
         const read_stream_closed = p.readable.pipeTo(decoder.writable);
 
-        update_port_display();    
+        update_port_display();
 
-        while (p.readable && p.writable && keepRunning)
-        {
+        while (p.readable && p.writable && keepRunning) {
             console.log("Create writer and reader");
 
             let writer = encoder.writable.getWriter();
@@ -129,31 +114,24 @@ async function run()
 
             update_connection_status(true);
 
-            try
-            {
-                while (true)
-                {
-                    console.log("Read");
+            try {
+                while (true) {
 
                     const { value, done } = await reader.read();
 
-                    if (done)
-                    {
+                    if (done) {
                         break;
                     }
-                    if (value)
-                    {
+                    if (value) {
                         terminal.write(value);
                     }
                 }
-            } catch(readError)
-            {
+            } catch (readError) {
                 console.log("Non fatal error: " + readError);
-            } finally
-            {
+            } finally {
                 console.log("Close streams");
 
-                writeCallback = data => {};
+                writeCallback = data => { };
 
                 reader.releaseLock();
                 writer.close();
@@ -161,21 +139,21 @@ async function run()
         }
 
         console.log("Write loop ended");
-        
 
         await write_stream_closed;
         await read_stream_closed;
 
+    }
+    catch (e) {
+        console.log("Caught", e);
+    }
+    finally {
         console.log("Closing port");
 
         await p.close();
 
-        console.log("Port closed");    
+        console.log("Port closed");
 
         update_connection_status(false);
-    }
-    catch (e)
-    {
-        console.log("Caught");
     }
 }
