@@ -39,29 +39,10 @@ function getInfo()
 
 async function open()
 {
-    try
-    {
-        console.log("Closing");
-        await current_port.close();
-        console.log("Closed", current_port);
-    } catch (e)
-    {      
-        console.log("Closing failed");      
-    }
-
     console.log("Opening port", current_port);
 
     await current_port.open({ baudRate: 115200 });
 
-    encoder = new TextEncoderStream();
-    let output_done = encoder.readable.pipeTo(current_port.writable);
-    write_stream = encoder.writable;
-
-    decoder = new TextDecoderStream();
-    let input_done = current_port.readable.pipeTo(decoder.writable);
-    read_stream = decoder.readable
-
-    return {read_stream, write_stream};
-
+    return current_port;
 }
 
