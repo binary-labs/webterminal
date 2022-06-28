@@ -104,6 +104,10 @@ async function run() {
 
         update_port_display();
 
+        console.log("Sending DTR signal");
+
+        await p.setSignals({dataTerminalReady: true});
+
         while (p.readable && p.writable && keepRunning) {
             console.log("Create writer and reader");
 
